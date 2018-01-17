@@ -1,0 +1,11 @@
+[Unit]
+Description=Kubectl Proxy
+
+[Service]
+Restart=always
+RestartSec=3
+ExecStart=/usr/local/bin/kubectl proxy --address 0.0.0.0 --disable-filter=true --kubeconfig=/root/.kube/config
+
+
+[Install]
+WantedBy=multi-user.target
