@@ -41,6 +41,7 @@ curl -o /usr/local/bin/kubectl -LO https://storage.googleapis.com/kubernetes-rel
 cp -a /tmp/bootstrap/localkube /var/lib/
 
 minikube start --vm-driver=none
+minikube enable heapster
 minikube stop
 
 cp /var/lib/localkube/kubeconfig /root/.kube
