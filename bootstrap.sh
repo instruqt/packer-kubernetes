@@ -1,8 +1,11 @@
 #!/bin/bash
 
-MINIKUBE_VERSION=0.24.1
-DOCKER_VERSION=
+MINIKUBE_VERSION=0.25.0
 
+hostname kubernetes
+hostnamectl set-hostname kubernetes
+
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 export DEBIAN_FRONTEND=noninteractive 
 
@@ -41,10 +44,9 @@ curl -o /usr/local/bin/kubectl -LO https://storage.googleapis.com/kubernetes-rel
 cp -a /tmp/bootstrap/localkube /var/lib/
 
 minikube start --vm-driver=none
-minikube enable heapster
 minikube stop
 
-cp /var/lib/localkube/kubeconfig /root/.kube
+cp /var/lib/localkube/kubeconfig /root/.kube/config
 rm -Rf /var/lib/localkube/etcd /var/lib/kubelet/pods/*
 
 cp -a /tmp/bootstrap/*.service /etc/systemd/system/
