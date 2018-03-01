@@ -7,7 +7,7 @@ hostnamectl set-hostname kubernetes
 
 ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
-export DEBIAN_FRONTEND=noninteractive 
+export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
 apt-get -y install \
@@ -16,7 +16,8 @@ apt-get -y install \
     ca-certificates \
     curl \
     software-properties-common \
-    conntrack
+    conntrack \
+    jq vim nano emacs joe
 
 # Install Docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
