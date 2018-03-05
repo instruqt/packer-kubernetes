@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 MINIKUBE_VERSION=0.25.0
 
 hostname kubernetes
@@ -17,7 +19,8 @@ apt-get -y install \
     curl \
     software-properties-common \
     conntrack \
-    jq vim nano emacs joe
+    jq vim nano emacs joe \
+    inotify-tools
 
 # Install Docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -45,7 +48,7 @@ curl -o /usr/local/bin/kubectl -LO https://storage.googleapis.com/kubernetes-rel
 cp -a /tmp/bootstrap/localkube /var/lib/
 
 minikube start --vm-driver=none
-minikube stop
+minikube stop || true
 
 cp /var/lib/localkube/kubeconfig /root/.kube/config
 rm -Rf /var/lib/localkube/etcd /var/lib/kubelet/pods/*

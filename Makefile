@@ -6,7 +6,7 @@ ifndef PROJECT
 endif
 
 build: check-variables
-	packer build -var 'project_id=${PROJECT}' kubernetes.json
+	packer build -var 'project_id=${PROJECT}' packer.json
 
 force-build: check-variables
-	packer build -force -var 'project_id=${PROJECT}' kubernetes.json
+	packer build -force -var 'project_id=${PROJECT}' packer.json

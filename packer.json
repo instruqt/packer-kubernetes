@@ -1,8 +1,11 @@
 {
+  "variables": {
+    "project_id": ""
+  },
   "builders": [
     {
       "type": "googlecompute",
-      "project_id": "instruqt-staging",
+      "project_id": "{{user `project_id`}}",
       "source_image_family": "ubuntu-1710",
       "zone": "europe-west1-b",
       "ssh_username" : "root",
