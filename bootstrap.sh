@@ -11,6 +11,10 @@ ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 export DEBIAN_FRONTEND=noninteractive
 
+echo "waiting 180 seconds for cloud-init to update /etc/apt/sources.list"
+timeout 180 /bin/bash -c \
+  'until stat /var/lib/cloud/instance/boot-finished 2>/dev/null; do echo waiting ...; sleep 1; done'
+
 apt-get update
 apt-get -y install \
     git curl wget \
