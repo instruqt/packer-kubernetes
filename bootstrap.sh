@@ -2,7 +2,7 @@
 
 set -e
 
-MINIKUBE_VERSION=0.25.0
+MINIKUBE_VERSION=0.27.0
 
 hostname kubernetes
 hostnamectl set-hostname kubernetes
@@ -24,7 +24,10 @@ apt-get -y install \
     software-properties-common \
     conntrack \
     jq vim nano emacs joe \
-    inotify-tools
+    inotify-tools \
+    socat make
+
+apt-get -y remove sshguard
 
 # Install Docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -51,7 +54,9 @@ curl -o /usr/local/bin/kubectl -LO https://storage.googleapis.com/kubernetes-rel
 
 cp -a /tmp/bootstrap/localkube /var/lib/
 
-minikube start --vm-driver=none
+#minikube start --vm-driver=none --extra-config=apiserver.Authorization.Mode=RBAC
+minikube start --bootstrapper=kubeadm --vm-driver=none
+#kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
 minikube stop || true
 
 cp /var/lib/localkube/kubeconfig /root/.kube/config
@@ -59,6 +64,8 @@ rm -Rf /var/lib/localkube/etcd /var/lib/kubelet/pods/*
 
 cp -a /tmp/bootstrap/*.service /etc/systemd/system/
 
+curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh
+chmod 700 get_helm.sh && ./get_helm.sh && rm ./get_helm.sh
+
 systemctl daemon-reload
-systemctl enable localkube
 systemctl enable kubectl-proxy

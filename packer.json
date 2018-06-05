@@ -9,7 +9,7 @@
       "source_image_family": "ubuntu-1710",
       "zone": "europe-west1-b",
       "ssh_username" : "root",
-      "image_name": "kubernetes-192",
+      "image_name": "kubernetes-110",
       "image_labels": {
         "track": "kubernetes",
         "created": "{{ timestamp }}"
