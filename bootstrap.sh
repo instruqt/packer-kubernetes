@@ -2,7 +2,7 @@
 
 set -e
 
-MINIKUBE_VERSION=0.27.0
+export HOME=/root
 
 hostname kubernetes
 hostnamectl set-hostname kubernetes
@@ -40,32 +40,45 @@ add-apt-repository \
 apt-get update
 apt-get install -y docker-ce
 
-# Download localkube
-wget -O /usr/local/bin/localkube https://github.com/kubernetes/minikube/releases/download/v${MINIKUBE_VERSION}/localkube && chmod +x /usr/local/bin/localkube
-
 # Download minikube
 wget -O /usr/local/bin/minikube \
-        https://github.com/kubernetes/minikube/releases/download/v${MINIKUBE_VERSION}/minikube-linux-amd64 \
+        https://github.com/kubernetes/minikube/releases/download/${MINIKUBE_VERSION}/minikube-linux-amd64 \
         && chmod +x /usr/local/bin/minikube
 
 # Download kubectl
-curl -o /usr/local/bin/kubectl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
+curl -o /usr/local/bin/kubectl -LO https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/kubectl \
         && chmod +x /usr/local/bin/kubectl
-
-cp -a /tmp/bootstrap/localkube /var/lib/
-
-#minikube start --vm-driver=none --extra-config=apiserver.Authorization.Mode=RBAC
-minikube start --bootstrapper=kubeadm --vm-driver=none
-#kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
-minikube stop || true
-
-cp /var/lib/localkube/kubeconfig /root/.kube/config
-rm -Rf /var/lib/localkube/etcd /var/lib/kubelet/pods/*
-
-cp -a /tmp/bootstrap/*.service /etc/systemd/system/
 
 curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh
 chmod 700 get_helm.sh && ./get_helm.sh && rm ./get_helm.sh
 
+export MINIKUBE_WANTUPDATENOTIFICATION=false
+export MINIKUBE_WANTREPORTERRORPROMPT=false
+export MINIKUBE_HOME=$HOME
+export CHANGE_MINIKUBE_NONE_USER=true
+mkdir -p $HOME/.kube
+touch $HOME/.kube/config
+
+export KUBECONFIG=$HOME/.kube/config
+
+minikube start --vm-driver=none
+
+for i in {1..150}; do # timeout for 5 minutes
+   kubectl get po &> /dev/null
+   if [ $? -ne 1 ]; then
+      break
+  fi
+  sleep 2
+done
+
+minikube stop || true
+
+umount /var/lib/kubelet/pods/*/volumes/*/* || true
+
+rm -Rf /data/minikube /etc/kubernetes /var/lib/localkube /var/lib/kube* /root/.kube
+
+cp -a /tmp/bootstrap/*.service /etc/systemd/system/
 systemctl daemon-reload
+
+systemctl enable minikube
 systemctl enable kubectl-proxy

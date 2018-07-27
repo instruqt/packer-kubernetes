@@ -1,5 +1,6 @@
 [Unit]
 Description=Kubectl Proxy
+After=minikube.service
 
 [Service]
 Restart=always

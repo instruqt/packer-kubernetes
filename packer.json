@@ -1,6 +1,8 @@
 {
   "variables": {
-    "project_id": ""
+    "project_id": "",
+    "k8s_version": "",
+    "minikube_version": ""
   },
   "builders": [
     {
@@ -9,7 +11,7 @@
       "source_image_family": "ubuntu-1710",
       "zone": "europe-west1-b",
       "ssh_username" : "root",
-      "image_name": "kubernetes-110",
+      "image_name": "kubernetes-{{ user `k8s_version` | clean_image_name }}",
       "image_labels": {
         "track": "kubernetes",
         "created": "{{ timestamp }}"
@@ -24,7 +26,11 @@
     },
     {
       "type": "shell",
-      "script": "bootstrap.sh"
+      "script": "bootstrap.sh",
+      "environment_vars": [
+              "K8S_VERSION={{ user `k8s_version` }}",
+              "MINIKUBE_VERSION={{ user `minikube_version` }}"
+      ]
     }
   ]
 
