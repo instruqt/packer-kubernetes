@@ -1,6 +1,4 @@
 #!/bin/bash
-CALICO_VERSION=3.3
-
 set -e
 
 export HOME=/root
@@ -13,6 +11,8 @@ hostnamectl set-hostname kubernetes
 sed -i 's/localhost$/localhost kubernetes/' /etc/hosts
 
 ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+echo $K8S_VERSION > /etc/k8s_version
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -31,7 +31,10 @@ apt-get -y install \
     jq vim nano emacs joe \
     inotify-tools \
     socat make golang-go \
-    docker.io
+    docker.io \
+    bash-completion
+
+
 
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
@@ -54,10 +57,28 @@ systemctl enable kubeadm kubectl-proxy docker
 
 systemctl start docker
 
-kubeadm config images pull
+kubeadm config images pull --kubernetes-version $K8S_VERSION
 
-docker pull quay.io/calico/node:v3.3.1
-docker pull quay.io/calico/cni:v3.3.1
-docker pull quay.io/calico/kube-controllers:v3.3.1
+docker pull quay.io/calico/node:v3.3.2
+docker pull quay.io/calico/cni:v3.3.2
+docker pull quay.io/calico/kube-controllers:v3.3.2
 docker pull quay.io/coreos/etcd:v3.3.9
-docker pull k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.0
+docker pull k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
+
+MANIFESTS=/etc/kubernetes/manifests
+
+# Download Calico manifests
+CALICO_VERSION=3.3
+CALICO_MANIFESTS=$MANIFESTS/calico
+CALICO_URL=https://docs.projectcalico.org/v$CALICO_VERSION/getting-started/kubernetes/installation/hosted/
+
+
+mkdir -p $CALICO_MANIFESTS
+curl -L -o $CALICO_MANIFESTS/etcd.yaml $CALICO_URL/etcd.yaml
+curl -L -o $CALICO_MANIFESTS/calico.yaml $CALICO_URL/calico.yaml
+curl -L -o $CALICO_MANIFESTS/rbac.yaml https://docs.projectcalico.org/v$CALICO_VERSION/getting-started/kubernetes/installation/rbac.yaml
+
+cp /tmp/bootstrap/kubernetes-dashboard.yaml $MANIFESTS/dashboard.yaml
+# Download dashboard manifest
+#curl -L -o $MANIFESTS/dashboard.yaml https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard.yaml
+
