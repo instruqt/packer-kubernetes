@@ -2,4 +2,4 @@
 
 Usage:
 
-`make PROJECT=instruqt MINIKUBE_VERSION=v0.28.2 K8S_VERSION=v1.10.1 force-build`
+`make PROJECT=<gcp-project-id> K8S_VERSION=v1.13.1 force-build`
