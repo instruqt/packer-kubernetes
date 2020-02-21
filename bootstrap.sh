@@ -46,8 +46,7 @@ apt-mark hold kubelet kubeadm kubectl
 
 apt-get -y remove sshguard
 
-curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh
-chmod 700 get_helm.sh && ./get_helm.sh && rm ./get_helm.sh
+curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
 cp -a /tmp/bootstrap/*.sh /usr/bin
 cp -a /tmp/bootstrap/*.service /lib/systemd/system/
